@@ -1,0 +1,64 @@
+stages:
+  - release
+  - build
+  - test
+  - deploy
+
+variables:
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+  MAVEN_CLI_OPTS: >-
+    -DskipTests
+
+Build Java JAR:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS package
+
+Build and Push Docker:
+  stage: build
+  script:
+    - echo "Build and Push Helm Chart"
+
+Build and Push Helm Chart:
+  stage: build
+  script:
+    - echo "Build and Push Helm Chart"
+
+Test:
+  stage: test
+  script:
+    - mvn test
+
+Deploy Review Environment:
+  stage: deploy
+  script:
+    - echo "Start Review"
+
+Stop Review Environment:
+  stage: deploy
+  script:
+    - echo "Stop Review"
+
+Deploy to staging:
+  stage: deploy
+
+release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo "Creating release"
+  release:
+    tag_name: '$CI_COMMIT_TAG'
+    description: '$CI_COMMIT_TAG'
+
+Deploy to production:
+  stage: deploy
+  script:
+    - echo "Deploy to prod"
+    - echo ""
+  rules:
+    - if: 
